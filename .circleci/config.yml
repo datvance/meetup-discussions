@@ -35,9 +35,11 @@ workflows:
   build_and_publish:
     jobs:
       - publish:
+          context: datvance-credentials
           filters:
             branches:
               only: master
+
   hourly:
     triggers:
       - schedule:

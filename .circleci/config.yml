@@ -2,7 +2,7 @@ version: 2
 
 jobs:
 
-  build:
+  publish:
     docker:
       - image: circleci/php:7-cli
     steps:
@@ -41,5 +41,5 @@ workflows:
               only:
                 - master
     jobs:
-      - build:
+      - publish:
           context: datvance-credentials

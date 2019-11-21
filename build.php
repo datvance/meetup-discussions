@@ -34,7 +34,7 @@ try
   if(!$meetup_crsf)
   {
     echo 'no meetup csrf';
-    exit;
+    exit(1);
   }
 
   $login_form_parameters = [
@@ -52,8 +52,9 @@ try
     'form_params' => $login_form_parameters
   ]);
 
+  $today_midnight = strtotime('today midnight');
   $current_year = date('Y');
-  $messages = [];
+  $discussions = [];
   foreach($meetups as $meetup)
   {
     $discussion_page = 'https://www.meetup.com/' . $meetup . '/discussions/';
@@ -98,26 +99,42 @@ try
         $link = $l[1];
       }
 
-      //20191117
-      $key = $current_year . date('md', strtotime("$day $current_year"));
-      $messages[$key] = "<p><b>{$member} on {$day}:</b> $text<br><a href='https://www.meetup.com{$link}' rel='nofollow'>{$link}</a></p>";
+      //20191117 - for sorting
+      //web ui doesn't list year so ...
+      //if discussion day of current year is > today assume discussion was in previous year, otherwise use current year
+      //fuzzy cuz of time zones and possibly very old (> 1 year) discussions
+      $discussion_possible_time = strtotime("$day $current_year");
+      $discussion_year = $discussion_possible_time > $today_midnight ? $current_year - 1 : $current_year;
+      $key = $discussion_year . date('md', strtotime("$day $discussion_year"));
+
+      $discussions[$key][] = "<p><b>{$member} on {$day}:</b> $text<br><a href='https://www.meetup.com{$link}' rel='nofollow'>{$link}</a></p>";
     }
   }
 
-  krsort($messages);
+  krsort($discussions);
 
-  file_put_contents(
+  $messages = [];
+  foreach($discussions as $date => $discussion_list)
+  {
+    $messages[] = join("\n", $discussion_list);
+  }
+
+  if(file_put_contents(
     __DIR__ . '/docs/index.html',
     str_replace(
       '{{ @messages }}',
       join("\n", $messages),
       file_get_contents(__DIR__ . '/templates/layout.html')
     )
-  );
+  ))
+  {
+    echo 'Wrote ' . count($messages) . " messages.\n";
+  }
 }
 catch(Exception $e)
 {
   echo $e->getMessage();
+  exit(1);
 }
 
 

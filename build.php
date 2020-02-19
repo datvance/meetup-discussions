@@ -8,7 +8,8 @@ $meetups = [
   'BoulderSkiClub',
   'IKON-Ski-Board',
   'Denver-Snowboarding-Meetup-EPIC-IKON-and-more',
-  'ODCO4Fun'
+  'ODCO4Fun',
+  'rideDBC'
 ];
 
 $client = new GuzzleHttp\Client([

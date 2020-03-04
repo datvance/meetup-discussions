@@ -2,6 +2,10 @@
 
 include_once './vendor/autoload.php';
 
+//uncomment and set to run locally
+//putenv('MEETUP_EMAIL=');
+//putenv('MEETUP_PASSWORD=');
+
 //https://www.meetup.com/Ski-CO/discussions/
 $meetups = [
   'Ski-CO',
@@ -88,7 +92,7 @@ try
         $day = $y[1];
       }
 
-      preg_match('@<p class="discussion\-card\-\-desc text\-\-wrapNice">(.*?)</p>@', $discussion, $t);
+      preg_match('@<p class="discussion\-card\-\-desc text\-\-wrapNice".*?display:.*?>(.*?)</p>@', $discussion, $t);
       if(isset($t[1]) && $t[1])
       {
         $text = $t[1];
